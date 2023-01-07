@@ -4,8 +4,8 @@
 
 ### Run:  
 1. `docker-compose build`  
-2. `docker-compose up`  
-3. Hit http://localhost:8080 to generate some tracing   data  
+2. `docker-compose up -d`  
+3. Hit http://localhost:8080 to generate some tracing data  
 4. Visit http://localhost:16686 in your browser
 
 This is what the output should look like
