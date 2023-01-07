@@ -11,6 +11,7 @@ static_resources:
         socket_address: 
           address: 0.0.0.0
           port_value: 80
+      traffic_direction: OUTBOUND
       filter_chains:
         - filters:
           - name: envoy.filters.network.http_connection_manager
@@ -22,8 +23,9 @@ static_resources:
                   name: envoy.tracers.zipkin
                   typed_config:
                     "@type": type.googleapis.com/envoy.config.trace.v3.ZipkinConfig
-                    collector_cluster: zipkin
-                    collector_endpoint: /api/v1/spans
+                    collector_cluster: jaeger
+                    collector_endpoint: "/api/v2/spans"
+                    shared_span_context: false
                     collector_endpoint_version: HTTP_JSON
               stat_prefix: "ingress_80"
               access_log:
@@ -51,6 +53,13 @@ static_resources:
                           prefix: "/"
                         route:
                           cluster: service_a
+                    response_headers_to_add:
+                      - header:
+                          key: "x-b3-traceid"
+                          value: "%REQ(x-b3-traceid)%"
+                      - header:
+                          key: "x-request-id"
+                          value: "%REQ(x-request-id)%"
   clusters:
     - name: service_a
       type: STRICT_DNS
@@ -65,16 +74,16 @@ static_resources:
                     socket_address:
                       address: service_a_envoy
                       port_value: 8786
-    - name: zipkin
+    - name: jaeger
       type: STRICT_DNS
       connect_timeout: 0.25s
       lb_policy: ROUND_ROBIN
       load_assignment:
-        cluster_name: zipkin
+        cluster_name: jaeger
         endpoints:
           - lb_endpoints:
               - endpoint:
                   address:
                     socket_address:
-                      address: zipkin
+                      address: jaeger
                       port_value: 9411
