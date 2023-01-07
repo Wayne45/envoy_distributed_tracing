@@ -1,0 +1,12 @@
+### Send to service A, service A calling service B and C, with x-client-trace-id.
+GET http://localhost:8080/
+x-client-trace-id: 5123ec31-90eb-4f80-b8a5-684856e445e4
+
+### Send to service A, service A calling service B and C, without x-client-trace-id.
+GET http://localhost:8080/
+
+### Envoy Admin UI
+GET http://localhost:9901
+
+### Jaeger UI
+GET http://localhost:16686
